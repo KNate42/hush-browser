@@ -1,0 +1,7 @@
+app/
+profile/
+.cache/
+.venv/
+__pycache__/
+*.xpi
+reports/*.json

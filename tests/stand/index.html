@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    window.hushPreviousLog = JSON.parse(sessionStorage.getItem('hushLog') || '[]');
+    window.hushLog = [];
+    window.hushPhase = 'load';
+    window.hushRecord = function (type, details = {}) {
+      const row = {
+        type, phase: window.hushPhase, scope: 'main', time: performance.now(),
+        hidden: document.hidden, visibilityState: document.visibilityState,
+        hasFocus: document.hasFocus(), ...details,
+      };
+      window.hushLog.push(row);
+      sessionStorage.setItem('hushLog', JSON.stringify(window.hushLog));
+      return row;
+    };
+    function recordEvent(event, listener) {
+      const target = event.target;
+      const details = {
+        listener, trusted: event.isTrusted,
+        target: target === window ? 'window' : target === document ? 'document' :
+          target.id || target.nodeName,
+      };
+      if ('inputType' in event) details.inputType = event.inputType;
+      if ('relatedTarget' in event) details.relatedTargetNull = event.relatedTarget === null;
+      if (event.clipboardData) {
+        details.data = event.clipboardData.getData('text/plain');
+        details.clipboardTypes = Array.from(event.clipboardData.types);
+      }
+      window.hushRecord(event.type, details);
+    }
+    for (const type of ['visibilitychange', 'blur', 'focus', 'paste', 'copy', 'cut',
+                        'input', 'beforeinput', 'mouseout', 'mousemove', 'scroll',
+                        'selectionchange', 'pagehide']) {
+      window.addEventListener(type, event => recordEvent(event, 'window'), true);
+    }
+    document.addEventListener('visibilitychange', event => recordEvent(event, 'document'), true);
+    document.addEventListener('focus', event => recordEvent(event, 'document'), true);
+    document.addEventListener('blur', event => recordEvent(event, 'document'), true);
+    window.hushObserver = new PerformanceObserver(entries => {
+      for (const entry of entries.getEntries()) {
+        window.hushRecord('performance', {name: entry.name, entryType: entry.entryType});
+      }
+    });
+    window.hushObserver.observe({entryTypes: ['mark']});
+    window.hushBackgroundProbe = function () {
+      setTimeout(() => {
+        const frame = document.createElement('iframe');
+        frame.hidden = true;
+        document.documentElement.appendChild(frame);
+        const hidden = frame.contentWindow.document.hidden;
+        window.hushRecord('background-probe', {iframeHidden: hidden});
+        frame.remove();
+      }, 1200);
+    };
+    window.hushBeacon = function (token) {
+      const result = navigator.sendBeacon('/beacon?token=' + encodeURIComponent(token), 'hush');
+      window.hushRecord('beacon', {result});
+      return result;
+    };
+    window.hushRecord('initial');
+  </script>
+  <title>Hush signal stand</title>
+  <style>
+    html { min-height: 100%; }
+    body { margin: 24px; min-height: 3000px; font: 16px sans-serif; }
+    label { display: block; margin: 18px 0; }
+    input, [contenteditable] { display: block; width: 420px; padding: 10px; }
+    [contenteditable] { min-height: 48px; border: 1px solid #555; white-space: pre-wrap; }
+    iframe { position: fixed; right: 20px; bottom: 20px; width: 280px; height: 140px; }
+  </style>
+</head>
+<body>
+  <h1>Hush signal stand</h1>
+  <label>Copy source <input id="source" value="Hush clipboard 1536"></label>
+  <label>Plain field <input id="plain" value=""></label>
+  <label>Editor <span id="editor" contenteditable="true"></span></label>
+  <iframe id="pointer-frame" src="frame.html" title="Pointer exit probe"></iframe>
+</body>
+</html>

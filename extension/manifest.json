@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Hush",
+  "version": "0.1.0",
+  "description": "Hides user activity signals from websites and unloads idle tabs.",
+  "browser_specific_settings": {
+    "gecko": { "id": "hush@local", "strict_min_version": "128.0" }
+  },
+  "permissions": ["scripting", "storage", "tabs", "alarms"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "scripts": ["background.js", "unloader.js"] },
+  "action": { "default_popup": "popup/popup.html", "default_title": "Hush" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dirty.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_origin_as_fallback": true
+    }
+  ]
+}

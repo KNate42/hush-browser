@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    window.hushLog = [];
+    window.addEventListener('mouseout', event => {
+      const row = {
+        type: event.type, scope: 'frame', trusted: event.isTrusted,
+        target: event.target.nodeName, relatedTargetNull: event.relatedTarget === null,
+        phase: parent.hushPhase, hidden: document.hidden,
+        visibilityState: document.visibilityState, hasFocus: document.hasFocus(),
+      };
+      window.hushLog.push(row);
+      if (parent !== window && parent.hushRecord) parent.hushRecord(row.type, row);
+    }, true);
+  </script>
+  <title>Hush frame</title>
+  <style>
+    html { width: 100%; height: 100%; background: #e4edf5; }
+    body { pointer-events: none; margin: 10px; font: 14px sans-serif; }
+  </style>
+</head>
+<body>Move into this frame and back to the parent page.</body>
+</html>

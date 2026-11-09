@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hush</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Hush</h1>
+      <div id="site-host" class="site-host"></div>
+    </header>
+
+    <div id="unsupported" class="unsupported-msg" hidden>
+      На этой странице защита не работает
+    </div>
+
+    <section id="site-controls" class="site-controls">
+      <div class="mode-switch" role="group" aria-label="Режим сайта">
+        <button type="button" class="mode-btn" data-mode="off" aria-pressed="false">Выключен</button>
+        <button type="button" class="mode-btn" data-mode="normal" aria-pressed="false">Обычный</button>
+        <button type="button" class="mode-btn" data-mode="strict" aria-pressed="false">Строгий</button>
+      </div>
+
+      <div id="mode-desc" class="mode-desc"></div>
+
+      <button type="button" id="reload-btn" class="reload-btn" hidden>
+        Перезагрузить вкладку
+      </button>
+    </section>
+
+    <hr class="divider">
+
+    <section class="section">
+      <label for="unload-select" class="section-label">Выгружать неактивные вкладки</label>
+      <select id="unload-select" class="select-input">
+        <option value="0">Никогда</option>
+        <option value="5">5 минут</option>
+        <option value="15">15 минут</option>
+        <option value="30">30 минут</option>
+        <option value="60">60 минут</option>
+      </select>
+    </section>
+
+    <section id="exceptions-section" class="section" hidden>
+      <hr class="divider">
+      <div class="section-label">Исключения</div>
+      <ul id="exceptions-list" class="exceptions-list"></ul>
+    </section>
+
+    <div id="error-message" class="error-message" role="alert" hidden>
+      Не удалось сохранить
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
